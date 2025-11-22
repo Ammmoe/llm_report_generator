@@ -1,0 +1,9 @@
+Analyze the following BMW sales summary and produce:
+- Executive summary
+- Sales trends
+- Top/underperforming models & regions
+- Key drivers (price, model type, etc.)
+- 1–2 creative insights
+
+DATA:
+{{data}}
