@@ -71,27 +71,92 @@ def plot_regions(region_year_dict: dict, out_dir: str) -> str:
     return path
 
 
-def plot_top_models(models_dict: dict, out_dir: str) -> str:
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.cm as cm
+import os
+from typing import Dict, Any
+
+
+def plot_models_by_region_over_years(
+    region_models_dict: Dict[str, Any],
+    out_dir: str,
+    region_name: str,
+) -> str:
     """
-    Plot top-selling models as a bar chart.
+    Plot sales of all models over years as lines for a given region.
 
     Args:
-        models_dict (dict): Mapping of model names (str) to sales volume (int).
-                            Example: {"Model A": 1234, "Model B": 2345, ...}
-        out_dir (str): Directory path where the plot image will be saved.
+        region_models_dict: {
+            "2020": [
+                {"Model": "X5", "Total_Sales": 23000},
+                {"Model": "3 Series", "Total_Sales": 18000},
+                ...
+            ],
+            "2021": [...],
+            ...
+        }
+        out_dir: Directory to save the plot
+        region_name: Region name, used for filename and title
 
     Returns:
-        str: File path to the saved PNG plot image.
+        Path to saved PNG file
     """
-    labels = list(models_dict.keys())
-    values = list(models_dict.values())
 
-    plt.figure(figsize=(8, 4))
-    plt.bar(labels, values)
-    plt.title("Top Models Sales")
-    plt.xticks(rotation=45, ha="right")
+    years = sorted(region_models_dict.keys())
+    n_years = len(years)
 
-    path = os.path.join(out_dir, "top_models.png")
+    if n_years == 0:
+        raise ValueError(f"No data available for region {region_name}")
+
+    # Collect all unique models appearing in this region across years
+    all_models_set = set()
+    for year in years:
+        for entry in region_models_dict[year]:
+            all_models_set.add(entry["Model"])
+    all_models = sorted(all_models_set)
+    n_models = len(all_models)
+
+    plt.figure(figsize=(max(12, n_models * 0.5), 7))  # widen plot if many models
+
+    # Generate color map for all models
+    colors = cm.get_cmap("tab20")(np.linspace(0, 1, n_models))
+
+    model_color_map = {model: colors[i] for i, model in enumerate(all_models)}
+
+    # Prepare sales data matrix: rows = models, cols = years
+    sales_matrix = np.zeros((n_models, n_years), dtype=float)
+    for year_idx, year in enumerate(years):
+        year_data = region_models_dict[year]
+        sales_dict = {entry["Model"]: entry["Total_Sales"] for entry in year_data}
+        for model_idx, model in enumerate(all_models):
+            sales_matrix[model_idx, year_idx] = sales_dict.get(model, 0)
+
+    # Plot each model's sales over years as a line
+    for model_idx, model in enumerate(all_models):
+        plt.plot(
+            years,
+            sales_matrix[model_idx],
+            label=model,
+            color=model_color_map[model],
+            marker='o',
+            linewidth=2,
+            markersize=5,
+        )
+
+    plt.title(f"Model Sales Over Years – {region_name}")
+    plt.xlabel("Year")
+    plt.ylabel("Sales Volume")
+    plt.grid(True, linestyle="--", alpha=0.5)
+    plt.xticks(rotation=45)
+
+    plt.legend(loc="upper left", bbox_to_anchor=(1, 1), fontsize="small")
+    plt.tight_layout()
+
+    os.makedirs(out_dir, exist_ok=True)
+    safe_region_name = region_name.replace(" ", "_")
+    path = os.path.join(out_dir, f"{safe_region_name}_all_models_performance_line.png")
     plt.savefig(path, bbox_inches="tight")
     plt.close()
+
     return path
