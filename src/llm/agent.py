@@ -64,8 +64,80 @@ class LLMReportAgent:
         markdown = self._extract_text(response)
 
         return markdown.strip()
+    
+    def analyze_models_over_years_trend(self, year_model_summary: dict, figures_dir: str, title_prefix: str = "All Regions") -> str:
+        """
+        Generate the models-over-years plot and ask the LLM
+        to produce a markdown report highlighting performance
+        of top and bottom performing models across years.
 
-    def analyze_model_trend(self, model_summary: dict, figures_dir: str) -> str:
+        Args:
+            year_model_summary: dict like:
+                {
+                    "2020": [
+                        {"Model": "X5", "Total_Sales": 23000},
+                        {"Model": "3 Series", "Total_Sales": 18000},
+                        ...
+                    ],
+                    "2021": [...],
+                    ...
+                }
+            figures_dir: directory to save generated plot
+            title_prefix: title prefix for the plot and filename
+
+        Returns:
+            Markdown report string
+        """
+
+        if not year_model_summary:
+            raise ValueError("Year-model summary data is empty or None.")
+
+        # 1) Generate the combined plot for all models over years
+        plot_path = self.plot_tool.generate_models_over_years_plot(
+            year_model_summary,
+            figures_dir,
+            title_prefix=title_prefix
+        )
+
+        if not plot_path:
+            raise RuntimeError("Models-over-years plot was not generated.")
+
+        plot_filename = os.path.basename(plot_path)
+
+        # 2) Prepare LLM prompt
+        prompt = f"""
+            You are a senior automotive market analyst. Write a structured and insightful Markdown report analyzing
+            the top-performing and underperforming BMW models across all regions over the years.
+
+            ### Rules
+            - Embed the plot BEFORE the analysis using markdown syntax: `![alt]({plot_filename})`.
+            - Focus on identifying high-growth models, weak performers,
+            and notable year-over-year trends.
+            - Do NOT invent additional plots or data.
+
+            ### Plot Filename
+            {plot_filename}
+
+            ### Model Performance Summary (Top 3 & Bottom 3 per Year)
+            ```json
+            {json.dumps(year_model_summary, indent=2)}
+            ```
+
+            Now produce ONLY the final markdown report.
+        """
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+            )
+        except Exception as e:
+            raise RuntimeError(f"LLM generation failed: {e}")
+
+        markdown = self._extract_text(response)
+        return markdown.strip()
+
+    def analyze_models_over_region_trend(self, model_summary: dict, figures_dir: str) -> str:
         """
         Generate region-level model plots and ask the LLM
         to produce a markdown report highlighting performance
@@ -176,6 +248,48 @@ class LLMReportAgent:
         markdown = self._extract_text(response)
 
         return markdown.strip()
+    
+    def combine_and_summarize_reports(self, markdown_reports: list[str]) -> str:
+        """
+        Combine multiple markdown reports into one compact report containing
+        only key insights but keeping all plot markdown image embeds intact.
+
+        Args:
+            markdown_reports (list[str]): List of markdown report strings to combine.
+
+        Returns:
+            str: Combined concise markdown report.
+        """
+
+        # Join input reports with separators for clarity
+        joined_reports = "\n\n---\n\n".join(markdown_reports)
+
+        prompt = (
+            "You are a senior data analyst.\n"
+            "You have multiple markdown reports, each containing text analysis and embedded plots.\n"
+            "Combine these reports into one concise markdown report containing only the key insights from each, "
+            "while keeping all existing plot images embedded exactly as they are.\n\n"
+            "### Important Instructions\n"
+            "- DO NOT remove or alter any existing plot embeds like ![alt](filename.png).\n"
+            "- Summarize the text content to keep only the most important insights.\n"
+            "- Organize the report logically with clear section headings.\n"
+            "- Preserve all original markdown formatting where relevant.\n\n"
+            "### Reports to Combine\n"
+            f"{joined_reports}\n\n"
+            "Now produce ONLY the final combined markdown report."
+        )
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+            )
+        except Exception as e:
+            raise RuntimeError(f"LLM generation failed: {e}")
+
+        combined_markdown = self._extract_text(response)
+        return combined_markdown.strip()
+
 
     def _extract_text(self, response) -> str:
         """Robustly extract text from Gemini response."""

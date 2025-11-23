@@ -66,6 +66,56 @@ def summarize_sales_by_region_year(df: pd.DataFrame, output_path: str):
 
     return summary
 
+def summarize_models_by_year(df: pd.DataFrame, output_path: str):
+    """
+    For each Year, list all models sorted by total sales descending,
+    combining sales from all regions.
+
+    Output Structure:
+    {
+        "2020": [
+            {"Model": "X5", "Total_Sales": 12000},
+            {"Model": "3 Series", "Total_Sales": 11000},
+            ...
+        ],
+        "2021": [...]
+    }
+    """
+
+    df = df.copy()
+
+    # Ensure correct types
+    df["Year"] = df["Year"].astype(int)
+    df["Sales_Volume"] = pd.to_numeric(df["Sales_Volume"], errors="coerce").fillna(0)
+
+    summary = {}
+
+    # Group by Year
+    for year, df_year in df.groupby("Year"):
+        year_str = str(year)
+
+        # Aggregate and sort models by total sales descending
+        model_sales = (
+            df_year.groupby("Model")["Sales_Volume"]
+            .sum()
+            .sort_values(ascending=False)
+            .astype(int)
+        )
+
+        # Convert to list of dicts
+        all_models = (
+            model_sales.reset_index()
+            .rename(columns={"Sales_Volume": "Total_Sales"})
+            .to_dict(orient="records")
+        )
+
+        summary[year_str] = all_models
+
+    # Save JSON
+    with open(output_path, "w") as f:
+        json.dump(summary, f, indent=2)
+
+    return summary
 
 def summarize_models_by_region_year(df: pd.DataFrame, output_path: str):
     """

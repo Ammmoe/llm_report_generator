@@ -1,9 +1,11 @@
 from src.plotting.plot_functions import (
     plot_sales_by_year,
-    plot_regions, 
+    plot_regions,
+    plot_models_over_years,
     plot_models_by_region_over_years,
     plot_correlation_vector,
 )
+
 
 class PlotTool:
     """
@@ -36,7 +38,40 @@ class PlotTool:
         except Exception as e:
             raise RuntimeError(f"Plot generation failed for '{plot_type}': {e}")
 
-    def generate_region_model_plots(self, region_models_summary: dict, out_dir: str) -> dict:
+    def generate_models_over_years_plot(
+        self, year_models_summary: dict, out_dir: str, title_prefix: str = "All Regions"
+    ) -> str:
+        """
+        Generate the line plot for models aggregated by year (no regions).
+
+        Args:
+            year_models_summary: dict like:
+                {
+                    "2020": [
+                        {"Model": "X5", "Total_Sales": 23000},
+                        {"Model": "3 Series", "Total_Sales": 18000},
+                        ...
+                    ],
+                    "2021": [...],
+                    ...
+                }
+            out_dir: Directory to save the plot
+            title_prefix: Optional title prefix for the plot and filename
+
+        Returns:
+            Path to saved PNG file
+        """
+        import os
+
+        os.makedirs(out_dir, exist_ok=True)
+        try:
+            return plot_models_over_years(year_models_summary, out_dir, title_prefix)
+        except Exception as e:
+            raise RuntimeError(f"Models-over-years plot generation failed: {e}")
+
+    def generate_region_model_plots(
+        self, region_models_summary: dict, out_dir: str
+    ) -> dict:
         """
         Generate region-level line plots for all models per year.
 
@@ -55,6 +90,7 @@ class PlotTool:
             Dict mapping region -> file path
         """
         import os
+
         os.makedirs(out_dir, exist_ok=True)
         output_paths = {}
 
@@ -65,21 +101,24 @@ class PlotTool:
             try:
                 path = plot_models_by_region_over_years(
                     year_dict,  # per-year model data
-                    out_dir,    # output directory
-                    region      # region name
+                    out_dir,  # output directory
+                    region,  # region name
                 )
                 output_paths[region] = path
 
             except Exception as e:
-                print(f"Warning: Failed to generate model-performance plot for {region}: {e}")
+                print(
+                    f"Warning: Failed to generate model-performance plot for {region}: {e}"
+                )
 
         return output_paths
-    
+
     def generate_correlation_matrix(self, data, out_dir: str) -> str:
         """
         Generate the correlation matrix plot separately.
         """
         import os
+
         os.makedirs(out_dir, exist_ok=True)
         try:
             return plot_correlation_vector(data, out_dir)

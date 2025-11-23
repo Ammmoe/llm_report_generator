@@ -80,6 +80,87 @@ import matplotlib.cm as cm
 import os
 from typing import Dict, Any
 
+def plot_models_over_years(
+    year_models_dict: Dict[str, Any],
+    out_dir: str,
+    title_prefix: str = "All Regions",
+) -> str:
+    """
+    Plot sales of all models over years as lines.
+
+    Args:
+        year_models_dict: {
+            "2020": [
+                {"Model": "X5", "Total_Sales": 23000},
+                {"Model": "3 Series", "Total_Sales": 18000},
+                ...
+            ],
+            "2021": [...],
+            ...
+        }
+        out_dir: Directory to save the plot
+        title_prefix: Title prefix, default "All Regions"
+
+    Returns:
+        Path to saved PNG file
+    """
+
+    years = sorted(year_models_dict.keys())
+    n_years = len(years)
+
+    if n_years == 0:
+        raise ValueError("No data available to plot")
+
+    # Collect all unique models appearing across all years
+    all_models_set = set()
+    for year in years:
+        for entry in year_models_dict[year]:
+            all_models_set.add(entry["Model"])
+    all_models = sorted(all_models_set)
+    n_models = len(all_models)
+
+    plt.figure(figsize=(max(10, n_models * 0.5), 6))  # widen plot if many models
+
+    # Generate color map for all models
+    colors = cm.get_cmap("tab20")(np.linspace(0, 1, n_models))
+    model_color_map = {model: colors[i] for i, model in enumerate(all_models)}
+
+    # Prepare sales data matrix: rows = models, cols = years
+    sales_matrix = np.zeros((n_models, n_years), dtype=float)
+    for year_idx, year in enumerate(years):
+        year_data = year_models_dict[year]
+        sales_dict = {entry["Model"]: entry["Total_Sales"] for entry in year_data}
+        for model_idx, model in enumerate(all_models):
+            sales_matrix[model_idx, year_idx] = sales_dict.get(model, 0)
+
+    # Plot each model's sales over years as a line
+    for model_idx, model in enumerate(all_models):
+        plt.plot(
+            years,
+            sales_matrix[model_idx],
+            label=model,
+            color=model_color_map[model],
+            marker="o",
+            linewidth=2,
+            markersize=5,
+        )
+
+    plt.title(f"Model Sales Over Years – {title_prefix}")
+    plt.xlabel("Year")
+    plt.ylabel("Sales Volume")
+    plt.grid(True, linestyle="--", alpha=0.5)
+    plt.xticks(rotation=45)
+
+    plt.legend(loc="upper left", bbox_to_anchor=(1, 1), fontsize="small")
+    plt.tight_layout()
+
+    os.makedirs(out_dir, exist_ok=True)
+    safe_title = title_prefix.replace(" ", "_")
+    path = os.path.join(out_dir, f"{safe_title}_models_performance_line.png")
+    plt.savefig(path, bbox_inches="tight")
+    plt.close()
+
+    return path
 
 def plot_models_by_region_over_years(
     region_models_dict: Dict[str, Any],
