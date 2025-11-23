@@ -2,6 +2,7 @@ from src.plotting.plot_functions import (
     plot_sales_by_year,
     plot_regions, 
     plot_models_by_region_over_years,
+    plot_correlation_vector,
 )
 
 class PlotTool:
@@ -73,6 +74,17 @@ class PlotTool:
                 print(f"Warning: Failed to generate model-performance plot for {region}: {e}")
 
         return output_paths
+    
+    def generate_correlation_matrix(self, data, out_dir: str) -> str:
+        """
+        Generate the correlation matrix plot separately.
+        """
+        import os
+        os.makedirs(out_dir, exist_ok=True)
+        try:
+            return plot_correlation_vector(data, out_dir)
+        except Exception as e:
+            raise RuntimeError(f"Correlation matrix plot generation failed: {e}")
 
     def generate_all(self, summary: dict, out_dir: str) -> dict:
         """

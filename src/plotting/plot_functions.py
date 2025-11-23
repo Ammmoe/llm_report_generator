@@ -1,5 +1,8 @@
 import os
 import matplotlib.pyplot as plt
+import pandas as pd
+import matplotlib.cm as cm
+from matplotlib.colors import Normalize
 
 
 def plot_sales_by_year(yearly_dict: dict, out_dir: str) -> str:
@@ -139,7 +142,7 @@ def plot_models_by_region_over_years(
             sales_matrix[model_idx],
             label=model,
             color=model_color_map[model],
-            marker='o',
+            marker="o",
             linewidth=2,
             markersize=5,
         )
@@ -156,6 +159,70 @@ def plot_models_by_region_over_years(
     os.makedirs(out_dir, exist_ok=True)
     safe_region_name = region_name.replace(" ", "_")
     path = os.path.join(out_dir, f"{safe_region_name}_all_models_performance_line.png")
+    plt.savefig(path, bbox_inches="tight")
+    plt.close()
+
+    return path
+
+def plot_correlation_vector(
+    corr_vector, out_dir: str, filename: str = "correlation_vector.png"
+) -> str:
+    """
+    Plot a correlation vector (single-column DataFrame or Series) as a horizontal bar plot
+    with color reflecting correlation strength and sign.
+
+    Args:
+        corr_vector (pd.Series or pd.DataFrame): Correlation values with features as index.
+        out_dir (str): Directory to save the plot.
+        filename (str): Output filename.
+
+    Returns:
+        str: File path to the saved plot image.
+    """
+    # Convert single-column DataFrame to Series if needed
+    if isinstance(corr_vector, pd.DataFrame):
+        if corr_vector.shape[1] != 1:
+            raise ValueError(
+                "Input DataFrame must have exactly one column for correlation vector plot."
+            )
+        corr_vector = corr_vector.iloc[:, 0]
+
+    # Sort correlations by absolute value descending for better visual
+    corr_vector = corr_vector.reindex(
+        corr_vector.abs().sort_values(ascending=False).index
+    )
+
+    features = corr_vector.index.tolist()
+    values = np.array(corr_vector.values, dtype=float)  # ensure numpy float array
+
+    fig_height = max(6, 0.3 * len(features))
+    fig, ax = plt.subplots(figsize=(10, fig_height))
+
+    # Normalize correlation values for color mapping [-1,1]
+    norm = Normalize(-1, 1)
+    colors = cm.coolwarm(norm(values))
+
+    bars = ax.barh(features, values, color=colors)
+
+    # Add value labels
+    for bar in bars:
+        width = bar.get_width()
+        ax.text(
+            width + 0.01 * np.sign(width),
+            bar.get_y() + bar.get_height() / 2,
+            f"{width:.3f}",
+            va="center",
+            ha="left" if width >= 0 else "right",
+            fontsize=8,
+        )
+
+    ax.set_xlabel("Correlation with Sales Volume")
+    ax.set_title("Correlation Vector Heatmap")
+    ax.axvline(0, color="black", linewidth=0.8)
+    plt.tight_layout()
+
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, filename)
     plt.savefig(path, bbox_inches="tight")
     plt.close()
 

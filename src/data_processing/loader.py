@@ -123,3 +123,38 @@ def summarize_models_by_region_year(df: pd.DataFrame, output_path: str):
         json.dump(summary, f, indent=2)
 
     return summary
+
+
+def explore_key_drivers_of_sales(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute the Pearson correlation values between all features
+    (after encoding categorical variables, including Year)
+    and Sales_Volume. Year is treated as a categorical variable.
+
+    Returns:
+        pd.DataFrame: A sorted dataframe of correlations vs Sales_Volume.
+    """
+
+    df = df.copy()
+
+    # Ensure Sales_Volume is numeric
+    df["Sales_Volume"] = pd.to_numeric(df["Sales_Volume"], errors="ignore").fillna(0)
+
+    # --- Treat Year as categorical ---
+    df["Year"] = df["Year"].astype(
+        str
+    )  # convert to string so it becomes a categorical column
+
+    # Identify categorical columns
+    categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
+
+    # One-hot encode categorical variables (including Year)
+    df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+    # Compute Pearson correlation matrix
+    corr_matrix = df_encoded.corr(method="pearson")
+
+    # Extract correlations with Sales_Volume
+    sales_corr = corr_matrix["Sales_Volume"].sort_values(ascending=False)
+
+    return sales_corr.to_frame(name="Correlation_with_Sales_Volume")
