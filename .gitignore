@@ -9,6 +9,9 @@
 __pycache__/
 *.py[cod]
 
+# Pytest cache
+.pytest_cache/
+
 # Ignore Python virtual environments
 venv/
 env/
