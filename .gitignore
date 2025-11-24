@@ -1,6 +1,6 @@
 # Ignore generated reports
-/reports/
-/reports/*
+# /reports/
+# /reports/*
 
 # Ignore environment variables file
 .env

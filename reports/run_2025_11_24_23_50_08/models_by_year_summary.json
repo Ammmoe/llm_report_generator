@@ -1,0 +1,232 @@
+{
+  "2020": [
+    {
+      "Model": "X1",
+      "Total_Sales": 1618766
+    },
+    {
+      "Model": "7 Series",
+      "Total_Sales": 1543614
+    },
+    {
+      "Model": "3 Series",
+      "Total_Sales": 1537651
+    },
+    {
+      "Model": "5 Series",
+      "Total_Sales": 1529725
+    },
+    {
+      "Model": "M5",
+      "Total_Sales": 1502663
+    },
+    {
+      "Model": "X5",
+      "Total_Sales": 1481542
+    },
+    {
+      "Model": "M3",
+      "Total_Sales": 1454349
+    },
+    {
+      "Model": "i8",
+      "Total_Sales": 1443078
+    },
+    {
+      "Model": "X6",
+      "Total_Sales": 1442646
+    },
+    {
+      "Model": "i3",
+      "Total_Sales": 1384260
+    },
+    {
+      "Model": "X3",
+      "Total_Sales": 1372549
+    }
+  ],
+  "2021": [
+    {
+      "Model": "M5",
+      "Total_Sales": 1689063
+    },
+    {
+      "Model": "i3",
+      "Total_Sales": 1632289
+    },
+    {
+      "Model": "7 Series",
+      "Total_Sales": 1624555
+    },
+    {
+      "Model": "3 Series",
+      "Total_Sales": 1579384
+    },
+    {
+      "Model": "X6",
+      "Total_Sales": 1562061
+    },
+    {
+      "Model": "M3",
+      "Total_Sales": 1547692
+    },
+    {
+      "Model": "X1",
+      "Total_Sales": 1510193
+    },
+    {
+      "Model": "X3",
+      "Total_Sales": 1484470
+    },
+    {
+      "Model": "i8",
+      "Total_Sales": 1471816
+    },
+    {
+      "Model": "X5",
+      "Total_Sales": 1427546
+    },
+    {
+      "Model": "5 Series",
+      "Total_Sales": 1355597
+    }
+  ],
+  "2022": [
+    {
+      "Model": "X5",
+      "Total_Sales": 1796846
+    },
+    {
+      "Model": "7 Series",
+      "Total_Sales": 1739216
+    },
+    {
+      "Model": "X6",
+      "Total_Sales": 1701699
+    },
+    {
+      "Model": "M3",
+      "Total_Sales": 1690554
+    },
+    {
+      "Model": "X3",
+      "Total_Sales": 1607566
+    },
+    {
+      "Model": "3 Series",
+      "Total_Sales": 1601902
+    },
+    {
+      "Model": "i8",
+      "Total_Sales": 1592647
+    },
+    {
+      "Model": "5 Series",
+      "Total_Sales": 1588961
+    },
+    {
+      "Model": "X1",
+      "Total_Sales": 1548116
+    },
+    {
+      "Model": "i3",
+      "Total_Sales": 1533866
+    },
+    {
+      "Model": "M5",
+      "Total_Sales": 1519573
+    }
+  ],
+  "2023": [
+    {
+      "Model": "7 Series",
+      "Total_Sales": 1583848
+    },
+    {
+      "Model": "M3",
+      "Total_Sales": 1557168
+    },
+    {
+      "Model": "X6",
+      "Total_Sales": 1556438
+    },
+    {
+      "Model": "i8",
+      "Total_Sales": 1537056
+    },
+    {
+      "Model": "X3",
+      "Total_Sales": 1534907
+    },
+    {
+      "Model": "3 Series",
+      "Total_Sales": 1510756
+    },
+    {
+      "Model": "M5",
+      "Total_Sales": 1463354
+    },
+    {
+      "Model": "X1",
+      "Total_Sales": 1457295
+    },
+    {
+      "Model": "5 Series",
+      "Total_Sales": 1410685
+    },
+    {
+      "Model": "i3",
+      "Total_Sales": 1372618
+    },
+    {
+      "Model": "X5",
+      "Total_Sales": 1284529
+    }
+  ],
+  "2024": [
+    {
+      "Model": "X6",
+      "Total_Sales": 1836396
+    },
+    {
+      "Model": "5 Series",
+      "Total_Sales": 1711580
+    },
+    {
+      "Model": "7 Series",
+      "Total_Sales": 1686209
+    },
+    {
+      "Model": "X3",
+      "Total_Sales": 1664449
+    },
+    {
+      "Model": "M5",
+      "Total_Sales": 1632996
+    },
+    {
+      "Model": "i3",
+      "Total_Sales": 1621427
+    },
+    {
+      "Model": "i8",
+      "Total_Sales": 1588625
+    },
+    {
+      "Model": "3 Series",
+      "Total_Sales": 1511560
+    },
+    {
+      "Model": "X1",
+      "Total_Sales": 1493734
+    },
+    {
+      "Model": "X5",
+      "Total_Sales": 1458678
+    },
+    {
+      "Model": "M3",
+      "Total_Sales": 1322200
+    }
+  ]
+}
