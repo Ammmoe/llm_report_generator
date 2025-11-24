@@ -1,5 +1,21 @@
+"""
+Data loading and preprocessing utilities for BMW sales analysis.
+
+This module provides helper functions to:
+- Load the dataset from Excel.
+- Summarize sales trends by region and year.
+- Summarize BMW model performance by year and by region.
+- Explore key drivers of sales using both Pearson correlation
+    and XGBoost-based feature importance analysis.
+
+These functions generate structured summaries that can be consumed by
+LLM-powered reporting agents or analytics pipelines.
+"""
+
 import json
 import pandas as pd
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
 
 
 def load_dataset(path: str) -> pd.DataFrame:
@@ -61,7 +77,7 @@ def summarize_sales_by_region_year(df: pd.DataFrame, output_path: str):
     }
 
     # Save to JSON file
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
     return summary
@@ -113,7 +129,7 @@ def summarize_models_by_year(df: pd.DataFrame, output_path: str):
         summary[year_str] = all_models
 
     # Save JSON
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
     return summary
@@ -171,7 +187,7 @@ def summarize_models_by_region_year(df: pd.DataFrame, output_path: str):
             summary[region][year_str] = all_models
 
     # Save JSON
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
     return summary
@@ -190,7 +206,7 @@ def explore_key_drivers_of_sales(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
     # Ensure Sales_Volume is numeric
-    df["Sales_Volume"] = pd.to_numeric(df["Sales_Volume"], errors="ignore").fillna(0)
+    df["Sales_Volume"] = pd.to_numeric(df["Sales_Volume"], errors="coerce").fillna(0)
 
     # --- Treat Year as categorical ---
     df["Year"] = df["Year"].astype(
@@ -212,11 +228,27 @@ def explore_key_drivers_of_sales(df: pd.DataFrame) -> pd.DataFrame:
     return sales_corr.to_frame(name="Correlation_with_Sales_Volume")
 
 
-import xgboost as xgb
-from sklearn.model_selection import train_test_split
-
-
 def xgboost_key_drivers(df):
+    """
+    Compute feature importance scores for sales drivers using an XGBoost regressor.
+
+    Categorical variables (including Year) are one-hot encoded, and an
+    XGBoost model is trained to predict Sales_Volume. The function returns
+    gain-based importance scores indicating which features contribute most
+    to the model's predictions.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        BMW sales dataset with Sales_Volume and related features.
+
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe of features and their importance scores, sorted in
+        descending order.
+    """
+
     df = df.copy()
 
     # Ensure Sales_Volume is numeric
@@ -236,9 +268,7 @@ def xgboost_key_drivers(df):
     y = df_encoded["Sales_Volume"]
 
     # Split to train/test (optional but good practice)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # Create XGBoost regressor
     model = xgb.XGBRegressor(objective="reg:squarederror", random_state=42)

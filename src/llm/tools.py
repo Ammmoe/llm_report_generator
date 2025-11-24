@@ -1,3 +1,13 @@
+"""
+PlotTool module: Provides plotting functions for BMW sales data analysis.
+
+Includes line plots for sales by year, by region, model sales over years,
+region-specific model performance, and correlation heatmaps.
+
+Designed for easy invocation by name and integration with LLM-based workflows.
+"""
+
+import os
 from src.plotting.plot_functions import (
     plot_sales_by_year,
     plot_regions,
@@ -36,7 +46,7 @@ class PlotTool:
         try:
             return plot_func(data, out_dir)
         except Exception as e:
-            raise RuntimeError(f"Plot generation failed for '{plot_type}': {e}")
+            raise RuntimeError(f"Plot generation failed for '{plot_type}': {e}") from e
 
     def generate_models_over_years_plot(
         self, year_models_summary: dict, out_dir: str, title_prefix: str = "All Regions"
@@ -61,13 +71,11 @@ class PlotTool:
         Returns:
             Path to saved PNG file
         """
-        import os
-
         os.makedirs(out_dir, exist_ok=True)
         try:
             return plot_models_over_years(year_models_summary, out_dir, title_prefix)
         except Exception as e:
-            raise RuntimeError(f"Models-over-years plot generation failed: {e}")
+            raise RuntimeError(f"Models-over-years plot generation failed: {e}") from e
 
     def generate_region_model_plots(
         self, region_models_summary: dict, out_dir: str
@@ -89,8 +97,6 @@ class PlotTool:
         Returns:
             Dict mapping region -> file path
         """
-        import os
-
         os.makedirs(out_dir, exist_ok=True)
         output_paths = {}
 
@@ -107,9 +113,9 @@ class PlotTool:
                 output_paths[region] = path
 
             except Exception as e:
-                print(
+                raise RuntimeError(
                     f"Warning: Failed to generate model-performance plot for {region}: {e}"
-                )
+                ) from e
 
         return output_paths
 
@@ -117,13 +123,11 @@ class PlotTool:
         """
         Generate the correlation matrix plot separately.
         """
-        import os
-
         os.makedirs(out_dir, exist_ok=True)
         try:
             return plot_correlation_vector(data, out_dir)
         except Exception as e:
-            raise RuntimeError(f"Correlation matrix plot generation failed: {e}")
+            raise RuntimeError(f"Correlation matrix plot generation failed: {e}") from e
 
     def generate_all(self, summary: dict, out_dir: str) -> dict:
         """
@@ -140,6 +144,8 @@ class PlotTool:
 
                 paths[plot_type] = plot_func(data, out_dir)
             except Exception as e:
-                print(f"Warning: Failed to generate '{plot_type}': {e}")
+                raise RuntimeError(
+                    f"Warning: Failed to generate '{plot_type}': {e}"
+                ) from e
 
         return paths

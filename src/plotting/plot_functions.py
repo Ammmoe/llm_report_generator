@@ -1,12 +1,24 @@
+"""
+Plotting utilities for visualizing BMW sales data, including sales trends,
+regional sales, model performance over time, and correlation heatmaps.
+
+Functions:
+- plot_sales_by_year
+- plot_regions
+- plot_models_over_years
+- plot_models_by_region_over_years
+- plot_correlation_vector
+"""
+
 import os
-import matplotlib.pyplot as plt
+from typing import Dict, Any
 import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from matplotlib.ticker import FuncFormatter
 import numpy as np
-from typing import Dict, Any
-import matplotlib.patches as mpatches
 
 
 def plot_sales_by_year(yearly_dict: dict, out_dir: str) -> str:
@@ -293,11 +305,11 @@ def plot_correlation_vector(
     values = np.array(corr_vector.values, dtype=float)  # ensure numpy float array
 
     fig_height = max(5, 0.35 * len(features))
-    fig, ax = plt.subplots(figsize=(10, fig_height))
+    _, ax = plt.subplots(figsize=(10, fig_height))
 
     # Normalize correlation values for color mapping [-1,1]
     norm = Normalize(-1, 1)
-    colors = cm.coolwarm(norm(values))
+    colors = cm.get_cmap("coolwarm")(norm(values))
 
     bars = ax.barh(features, values, color=colors)
 

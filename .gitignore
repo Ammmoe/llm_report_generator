@@ -1,3 +1,23 @@
 # Ignore generated reports
 /reports/
 /reports/*
+
+# Ignore environment variables file
+.env
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.py[cod]
+
+# Ignore Python virtual environments
+venv/
+env/
+.venv/
+
+# Ignore IDE/editor config files
+.vscode/
+.idea/
+
+# Ignore other common sensitive or local config files
+*.sqlite3
+*.db

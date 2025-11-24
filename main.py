@@ -1,3 +1,19 @@
+"""
+Main script to perform BMW sales data analysis and generate a comprehensive
+markdown report.
+
+Workflow:
+- Load and preprocess sales data from Excel.
+- Summarize sales by region and year.
+- Summarize model sales by year and by region.
+- Explore key sales drivers using correlation and XGBoost analysis.
+- Generate analysis reports using LLM with embedded plots.
+- Combine individual markdown reports into a final comprehensive report.
+- Save the report and associated figures to a timestamped experiment folder.
+
+Progress is indicated with a console spinner during long-running steps.
+"""
+
 import os
 from src.data_processing.loader import (
     load_dataset,
@@ -42,13 +58,16 @@ sales_drivers = explore_key_drivers_of_sales(df)
 # Explore XGBoost sales drivers
 xgboost_sales_drivers = xgboost_key_drivers(df)
 
+# Initiate gemini llm agent
 llm_agent = LLMReportAgent()
 
 # Step 1 — Sales trend analysis
 spinner = Spinner("Analyzing overall and regional sales trends")
 spinner.start()
-sales_report_md = llm_agent.analyze_sales_trend(sales_summary, figures_dir)
-spinner.stop()
+try:
+    sales_report_md = llm_agent.analyze_sales_trend(sales_summary, figures_dir)
+finally:
+    spinner.stop()
 
 # Step 2 — Model performance by years
 spinner = Spinner("Analyzing model performance trends across years")
@@ -61,29 +80,35 @@ spinner.stop()
 # Step 3 — Regional model performance
 spinner = Spinner("Analyzing regional model sales performance")
 spinner.start()
-model_by_region_report_md = llm_agent.analyze_models_over_region_trend(
-    model_by_region_summary, figures_dir
-)
-spinner.stop()
+try:
+    model_by_region_report_md = llm_agent.analyze_models_over_region_trend(
+        model_by_region_summary, figures_dir
+    )
+finally:
+    spinner.stop()
 
 # Step 4 — Sales drivers
 spinner = Spinner("Analyzing key drivers of sales (correlations)")
 spinner.start()
-drivers_report_md = llm_agent.analyze_correlation_matrix(sales_drivers, figures_dir)
-spinner.stop()
+try:
+    drivers_report_md = llm_agent.analyze_correlation_matrix(sales_drivers, figures_dir)
+finally:
+    spinner.stop()
 
 # Step 5 — Combine all reports
 spinner = Spinner("Generating final report")
 spinner.start()
-combined_md = llm_agent.combine_and_summarize_reports(
-    [
-        sales_report_md,
-        model_by_year_report_md,
-        model_by_region_report_md,
-        drivers_report_md,
-    ]
-)
-spinner.stop()
+try:
+    combined_md = llm_agent.combine_and_summarize_reports(
+        [
+            sales_report_md,
+            model_by_year_report_md,
+            model_by_region_report_md,
+            drivers_report_md,
+        ]
+    )
+finally:
+    spinner.stop()
 
 # Step 6 — Build final file
 combined_report_path = build_markdown_report(
