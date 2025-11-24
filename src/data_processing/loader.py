@@ -66,6 +66,7 @@ def summarize_sales_by_region_year(df: pd.DataFrame, output_path: str):
 
     return summary
 
+
 def summarize_models_by_year(df: pd.DataFrame, output_path: str):
     """
     For each Year, list all models sorted by total sales descending,
@@ -116,6 +117,7 @@ def summarize_models_by_year(df: pd.DataFrame, output_path: str):
         json.dump(summary, f, indent=2)
 
     return summary
+
 
 def summarize_models_by_region_year(df: pd.DataFrame, output_path: str):
     """
@@ -208,3 +210,48 @@ def explore_key_drivers_of_sales(df: pd.DataFrame) -> pd.DataFrame:
     sales_corr = corr_matrix["Sales_Volume"].sort_values(ascending=False)
 
     return sales_corr.to_frame(name="Correlation_with_Sales_Volume")
+
+
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+
+
+def xgboost_key_drivers(df):
+    df = df.copy()
+
+    # Ensure Sales_Volume is numeric
+    df["Sales_Volume"] = pd.to_numeric(df["Sales_Volume"], errors="coerce").fillna(0)
+
+    # Treat Year as categorical
+    df["Year"] = df["Year"].astype(str)
+
+    # Identify categorical columns
+    categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
+
+    # One-hot encode categorical variables
+    df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+    # Features and target
+    X = df_encoded.drop(columns=["Sales_Volume"])
+    y = df_encoded["Sales_Volume"]
+
+    # Split to train/test (optional but good practice)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Create XGBoost regressor
+    model = xgb.XGBRegressor(objective="reg:squarederror", random_state=42)
+
+    # Train
+    model.fit(X_train, y_train)
+
+    # Get feature importance scores (gain or weight)
+    importance = model.get_booster().get_score(importance_type="gain")
+
+    # Convert to DataFrame for easier interpretation
+    importance_df = pd.DataFrame.from_dict(
+        importance, orient="index", columns=["importance"]
+    ).sort_values(by="importance", ascending=False)
+
+    return importance_df

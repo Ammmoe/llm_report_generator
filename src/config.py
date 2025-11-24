@@ -1,11 +1,11 @@
 import os
 from datetime import datetime
 
-# Root paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(BASE_DIR)  # one directory above the script location
 
-DATASET_PATH = os.path.join(BASE_DIR, "..", "datasets", "BMW sales data (2020-2024).xlsx")
-REPORTS_ROOT = os.path.join(BASE_DIR, "..", "reports")
+DATASET_PATH = os.path.join(PARENT_DIR, "datasets", "BMW sales data (2020-2024).xlsx")
+REPORTS_ROOT = os.path.join(PARENT_DIR, "reports")
 
 # Make a timestamped folder for each run
 def get_run_report_dir():
