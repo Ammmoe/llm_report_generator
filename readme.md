@@ -1,4 +1,4 @@
-# 🤖 Automated LLM Report Generation Pipeline
+# Automated LLM Report Generation Pipeline
 
 This repository contains a pipeline for automated report generation using a Large Language Model (LLM), specifically Google Gemini 2.5 Flash. The pipeline processes BMW sales data (2020-2024) and generates insightful markdown reports with supporting figures.
 
