@@ -15,7 +15,6 @@ from typing import Dict, Any
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from matplotlib.ticker import FuncFormatter
 import numpy as np
@@ -140,7 +139,7 @@ def plot_models_over_years(
     plt.figure(figsize=(10, 5.5))
 
     # Generate color map
-    colors = cm.get_cmap("tab20")(np.linspace(0, 1, n_models))
+    colors = plt.get_cmap("tab20")(np.linspace(0, 1, n_models))
     model_color_map = {model: colors[i] for i, model in enumerate(all_models)}
 
     # Build matrix: rows = models, cols = years (in millions)
@@ -227,7 +226,7 @@ def plot_models_by_region_over_years(
     plt.figure(figsize=(10, 5.5))
 
     # Generate color map for all models
-    colors = cm.get_cmap("tab20")(np.linspace(0, 1, n_models))
+    colors = plt.get_cmap("tab20")(np.linspace(0, 1, n_models))
 
     model_color_map = {model: colors[i] for i, model in enumerate(all_models)}
 
@@ -309,7 +308,7 @@ def plot_correlation_vector(
 
     # Normalize correlation values for color mapping [-1,1]
     norm = Normalize(-1, 1)
-    colors = cm.get_cmap("coolwarm")(norm(values))
+    colors =plt.get_cmap("coolwarm")(norm(values))
 
     bars = ax.barh(features, values, color=colors)
 
